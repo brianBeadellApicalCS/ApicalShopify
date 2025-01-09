@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block title %}Payment Successful{% endblock %}
+
+{% block content %}
+<div class="success-message">
+    <h1>Payment Successful!</h1>
+    {% if order %}
+    <p>Order Reference: {{ order.order_reference }}</p>
+    <p>Amount: {{ order.currency }} {{ order.amount }}</p>
+    {% endif %}
+</div>
+{% endblock %} 

@@ -1,0 +1,285 @@
+PAYMENT SYSTEM MODELS DOCUMENTATION
+=================================
+
+1. ShopifyOrder Model
+--------------------
+Purpose: Represents an order from Shopify that requires payment processing.
+
+Fields:
+- order_reference (CharField)
+  - Max length: 100
+  - Unique: True
+  - Purpose: Stores Shopify order reference
+
+- amount (DecimalField)
+  - Max digits: 10
+  - Decimal places: 2
+  - Purpose: Order total amount
+
+- currency (CharField)
+  - Max length: 3
+  - Default: 'USD'
+  - Purpose: Currency code (e.g., USD, EUR)
+
+- status (CharField)
+  - Choices: PENDING, PROCESSING, PAID, FAILED
+  - Default: PENDING
+  - Purpose: Current order status
+
+- customer_email (EmailField)
+  - Purpose: Customer contact information
+
+- customer_name (CharField)
+  - Max length: 255
+  - Purpose: Customer's full name
+
+- created_at (DateTimeField)
+  - Auto now add: True
+  - Purpose: Order creation timestamp
+
+- updated_at (DateTimeField)
+  - Auto now: True
+  - Purpose: Last update timestamp
+
+Methods:
+- __str__(): Returns order reference
+- get_total(): Returns formatted amount with currency
+- is_paid(): Returns boolean payment status
+
+Usage Example:
+python
+payment = PaymentAttempt.objects.create(
+order=order,
+amount=99.99,
+status='INITIATED',
+payment_method='stripe'
+)
+
+
+3. Database Indexes
+------------------
+- order_reference_idx on ShopifyOrder.order_reference
+- status_idx on PaymentAttempt.status
+- transaction_id_idx on PaymentAttempt.transaction_id
+
+4. Model Relationships
+--------------------
+- One-to-Many: ShopifyOrder to PaymentAttempt
+- Cascading deletes: Payment attempts deleted with order
+
+5. Data Validation
+----------------
+- Amount validation
+- Currency code validation
+- Email format validation
+- Status transitions validation
+
+6. Signal Handlers
+----------------
+- post_save on PaymentAttempt
+  - Updates order status
+  - Sends notifications
+  - Logs status changes
+
+1.2 confirm_payment
+------------------
+Purpose: Confirms a payment intent
+
+Parameters:
+- payment_id (str): Stripe payment intent ID
+
+Returns:
+python
+{
+'success': bool,
+'status': str,
+'amount': float,
+'currency': str,
+'error': str
+}
+
+
+2. Error Handling
+---------------
+2.1 Stripe Errors:
+- StripeError
+- CardError
+- InvalidRequestError
+- APIError
+
+2.2 Custom Errors:
+- PaymentValidationError
+- PaymentProcessingError
+- WebhookValidationError
+
+3. Webhook Processing
+-------------------
+3.1 Supported Events:
+- payment_intent.succeeded
+- payment_intent.failed
+- payment_intent.canceled
+
+3.2 Webhook Security:
+- Signature verification
+- Timestamp validation
+- Payload validation
+
+PAYMENT VIEWS DOCUMENTATION
+=========================
+
+1. Payment Form View
+------------------
+URL: /api/shopify/payment/form/<order_id>/
+Method: GET
+Purpose: Displays payment form with Stripe Elements
+
+Template Context:
+- order: ShopifyOrder instance
+- stripe_public_key: Stripe publishable key
+
+2. Create Payment Intent View
+--------------------------
+URL: /api/shopify/payment/create-intent/
+Method: POST
+Purpose: Initializes payment process
+
+Request Body:
+json
+{
+"order_id": "integer"
+}
+
+Response:
+
+json
+{
+"success": true,
+"client_secret": "string"
+}
+
+
+3. Confirm Payment View
+---------------------
+URL: /api/shopify/payment/confirm/
+Method: POST
+Purpose: Confirms payment completion
+
+Request Body:
+json
+{
+"payment_intent_id": "string"
+}
+Response:
+json
+{
+"success": true,
+"status": "string"
+}
+
+
+4. Success/Error Views
+--------------------
+URLs: 
+- /api/shopify/payment/success/
+- /api/shopify/payment/error/
+
+Purpose: Display payment result to user
+
+Context:
+- order: Order details
+- payment: Payment attempt details
+
+PAYMENT TEMPLATES DOCUMENTATION
+============================
+
+1. Base Template (base.html)
+--------------------------
+Purpose: Provides common layout and styling
+
+Features:
+- Bootstrap 5 integration
+- Responsive design
+- Common header/footer
+- Block definitions
+
+2. Payment Form (payment_form.html)
+--------------------------------
+Extends: base.html
+
+Features:
+- Stripe Elements integration
+- Form validation
+- Error handling
+- Loading states
+
+3. Success Template (payment_success.html)
+---------------------------------------
+Extends: base.html
+
+Features:
+- Order summary
+- Payment confirmation
+- Receipt details
+- Next steps
+
+4. Error Template (payment_error.html)
+-----------------------------------
+Extends: base.html
+
+Features:
+- Error details
+- Retry options
+- Support contact
+- Troubleshooting steps
+
+TESTING DOCUMENTATION
+===================
+
+1. Unit Tests
+-----------
+1.1 Model Tests:
+- test_payment_attempt_creation
+- test_payment_attempt_status_update
+- test_order_status_updates
+
+1.2 Service Tests:
+- test_create_payment_intent_success
+- test_create_payment_intent_failure
+- test_confirm_payment_success
+- test_confirm_payment_failure
+
+1.3 View Tests:
+- test_payment_form_view
+- test_create_payment_intent
+- test_confirm_payment_success
+- test_payment_success_view
+- test_payment_error_view
+
+2. Integration Tests
+-----------------
+- test_complete_payment_flow
+- test_failed_payment_flow
+- test_webhook_processing
+
+3. Test Data
+----------
+3.1 Fixtures:
+- orders.json
+- payments.json
+
+3.2 Mock Objects:
+- MockStripeGateway
+- MockWebhookHandler
+
+4. Running Tests
+-------------
+
+All tests
+python3 manage.py test shopify.tests.test_payments
+Specific components
+python3 manage.py test shopify.tests.test_payments.test_models
+python3 manage.py test shopify.tests.test_payments.test_payment_gateway
+python3 manage.py test shopify.tests.test_payments.test_payment_views
+python3 manage.py test shopify.tests.test_payments.test_integration
+
+ugh my fingers are going to fall off ;)

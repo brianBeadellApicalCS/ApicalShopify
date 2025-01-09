@@ -1,0 +1,43 @@
+# 1. Clone repository
+git clone https://github.com/your-repo/ApicalShopify.git
+cd ApicalShopify
+
+# 2. Set up virtual environment
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+
+# 3. Set up environment variables
+cp .env.example .env
+# Edit .env with production values
+
+# 4. Collect static files
+python manage.py collectstatic --no-input
+
+# 5. Run migrations
+python manage.py migrate
+
+# 6. Create superuser
+python manage.py createsuperuser
+
+# 7. Set up Nginx
+sudo ln -s /etc/nginx/sites-available/apical-shopify /etc/nginx/sites-enabled/
+sudo nginx -t
+sudo systemctl restart nginx
+
+# 8. Set up SSL with Let's Encrypt
+sudo certbot --nginx -d shop.apical-ag.com
+
+# 9. Start Gunicorn service
+sudo systemctl start apical-shopify
+sudo systemctl enable apical-shopify
+```
+Post-Deployment Checklist:
+1. Verify Shopify webhook endpoints
+2. Test payment flow in production
+3. Verify PDF generation
+4. Check email sending
+5. Monitor error logs
+6. Set up SSL certificate auto-renewal
+7. Configure backup automation
+8. Test backup restoration

@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h2>Payment Form</h2>
+    <div class="order-details">
+        <p>Order Reference: {{ order.order_reference }}</p>
+        <p>Amount: {{ order.amount }} {{ order.currency }}</p>
+    </div>
+    
+    <form id="payment-form" method="POST" action="{% url 'shopify:process_payment' order.id %}">
+        {% csrf_token %}
+        <!-- Add your payment form fields here -->
+        <button type="submit" class="btn btn-primary">Process Payment</button>
+    </form>
+</div>
+{% endblock %} 

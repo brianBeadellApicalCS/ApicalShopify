@@ -1,0 +1,11 @@
+Django==5.0
+python-dotenv==1.0.0
+reportlab==4.0.7
+django-redis==5.4.0
+django-csp==3.7
+ShopifyAPI==12.3.0
+gunicorn==21.2.0
+psycopg2-binary==2.9.9
+whitenoise==6.6.0
+PyPDF2==3.0.1
+django-ratelimit==4.1.0 
