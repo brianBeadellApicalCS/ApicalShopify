@@ -66,7 +66,7 @@ POST /api/payments/refund/
 
 Support:
 --------
-For support, contact: support@apical.com
+For support, contact: info@apical-ag.com
 
 License:
 --------
